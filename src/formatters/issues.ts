@@ -1,6 +1,10 @@
 import type { GitHubEvent } from "../types";
 import { escapeHtml } from "../telegram";
 
+function headerLine(label: string, value: string): string {
+  return `<code><b>${label}</b></code>${value}`;
+}
+
 export function formatIssues(event: GitHubEvent): string {
   const repo = event.repository?.full_name ?? "unknown";
   const repoUrl = event.repository?.html_url ?? "";
@@ -10,18 +14,26 @@ export function formatIssues(event: GitHubEvent): string {
   const number = issue?.number;
   const url = (issue?.html_url as string) ?? "";
   const sender = event.sender?.login ?? "unknown";
+  const senderUrl = event.sender?.html_url ?? "";
   const labels = (issue?.labels as Array<{ name: string }> | undefined) ?? [];
 
-  const lines: string[] = [];
-  const labelText = labels.length > 0 ? ` [${labels.map((l) => l.name).join(", ")}]` : "";
-
   let actionText: string;
-  if (action === "opened") actionText = "opened";
-  else if (action === "closed") actionText = "closed";
-  else if (action === "reopened") actionText = "reopened";
+  let emoji = "📝";
+  if (action === "opened") { actionText = "opened"; emoji = "🐛"; }
+  else if (action === "closed") { actionText = "closed"; emoji = "✅"; }
+  else if (action === "reopened") { actionText = "reopened"; emoji = "🔄"; }
   else actionText = action;
 
-  lines.push(`<b>[<a href="${repoUrl}">${escapeHtml(repo)}</a>]</b> Issue <a href="${url}">#${number} ${escapeHtml(title)}</a> ${actionText} by <a href="${event.sender?.html_url ?? ""}">${escapeHtml(sender)}</a>${labelText}`);
+  const lines: string[] = [];
+  lines.push(headerLine("Event:    ", `${emoji} issue`));
+  lines.push(headerLine("Repo:     ", `<a href="${repoUrl}">${escapeHtml(repo)}</a>`));
+  lines.push(headerLine("Action:   ", actionText));
+  lines.push(headerLine("By:       ", `<a href="${senderUrl}">${escapeHtml(sender)}</a>`));
+  if (labels.length > 0) {
+    lines.push(headerLine("Labels:   ", labels.map((l) => escapeHtml(l.name)).join(", ")));
+  }
+  lines.push("");
+  lines.push(`<a href="${url}">#${number} ${escapeHtml(title)}</a>`);
 
   return lines.join("\n");
 }

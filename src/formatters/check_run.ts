@@ -1,6 +1,10 @@
 import type { GitHubEvent } from "../types";
 import { escapeHtml } from "../telegram";
 
+function headerLine(label: string, value: string): string {
+  return `<code><b>${label}</b></code>${value}`;
+}
+
 export function formatCheckRun(event: GitHubEvent): string {
   const repo = event.repository?.full_name ?? "unknown";
   const repoUrl = event.repository?.html_url ?? "";
@@ -11,11 +15,21 @@ export function formatCheckRun(event: GitHubEvent): string {
   const conclusion = checkRun?.conclusion as string | undefined;
   const url = (checkRun?.html_url as string) ?? "";
   const sender = event.sender?.login ?? "unknown";
+  const senderUrl = event.sender?.html_url ?? "";
 
   let conclusionLabel = "";
-  if (conclusion === "success") conclusionLabel = " ✅";
-  else if (conclusion === "failure") conclusionLabel = " ❌";
-  else if (conclusion === "cancelled") conclusionLabel = " ⚠️ cancelled";
+  let emoji = "⚠️";
+  if (conclusion === "success") { conclusionLabel = "success"; emoji = "✅"; }
+  else if (conclusion === "failure") { conclusionLabel = "failure"; emoji = "❌"; }
+  else if (conclusion === "cancelled") conclusionLabel = "cancelled";
 
-  return `<b>[<a href="${repoUrl}">${escapeHtml(repo)}</a>]</b> Check <a href="${url}">${escapeHtml(name)}</a> ${action}: ${status}${conclusionLabel} by <a href="${event.sender?.html_url ?? ""}">${escapeHtml(sender)}</a>`;
+  const lines: string[] = [];
+  lines.push(headerLine("Event:    ", `${emoji} check_run`));
+  lines.push(headerLine("Repo:     ", `<a href="${repoUrl}">${escapeHtml(repo)}</a>`));
+  lines.push(headerLine("Check:    ", `<a href="${url}">${escapeHtml(name)}</a>`));
+  lines.push(headerLine("Action:   ", action));
+  lines.push(headerLine("Status:   ", status + (conclusionLabel ? ` (${conclusionLabel})` : "")));
+  lines.push(headerLine("By:       ", `<a href="${senderUrl}">${escapeHtml(sender)}</a>`));
+
+  return lines.join("\n");
 }

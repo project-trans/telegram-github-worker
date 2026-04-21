@@ -34,13 +34,13 @@ describe("formatPush", () => {
       ref: "refs/heads/main",
       compare: "https://github.com/owner/repo/compare/abc...def",
       commits: [
-        { message: "fix: bug", url: "https://github.com/owner/repo/commit/abc", author: { name: "dev" } },
+        { id: "abc1234", message: "fix: bug", url: "https://github.com/owner/repo/commit/abc", author: { name: "dev" } },
       ],
     };
     const result = formatPush(event);
     expect(result).toContain("main");
     expect(result).toContain("fix: bug");
-    expect(result).toContain("1 new commit");
+    expect(result).toContain("Commits:  </b></code>1");
   });
 });
 
@@ -76,7 +76,7 @@ describe("formatRelease", () => {
       },
     };
     const result = formatRelease(event);
-    expect(result).toContain("[pre-release]");
+    expect(result).toContain("(pre-release)");
   });
 });
 
@@ -96,6 +96,6 @@ describe("formatIssues", () => {
     expect(result).toContain("#42");
     expect(result).toContain("Bug report");
     expect(result).toContain("opened");
-    expect(result).toContain("[bug]");
+    expect(result).toContain("bug");
   });
 });

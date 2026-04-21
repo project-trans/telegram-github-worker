@@ -53,7 +53,7 @@ export default {
       config = await getOrgWildcardConfig(env.TG_GH_KV, orgName);
     }
     if (!config) {
-      return new Response("No Content", { status: 204 });
+      return new Response(null, { status: 204 });
     }
 
     const valid = await verifySignature(body, signature, config.secret);
@@ -77,6 +77,14 @@ export default {
 
     const errors: string[] = [];
     for (const target of targets) {
+      if (target.silence_workflow && eventType === "workflow_run") {
+        const conclusion = (payload.workflow_run as Record<string, unknown> | undefined)?.conclusion;
+        if (conclusion !== "failure") {
+          console.log(`[event:${eventType}] silenced workflow (conclusion: ${conclusion})`);
+          continue;
+        }
+      }
+
       try {
         await sendMessage({
           bot_token: target.bot_token,

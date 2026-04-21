@@ -1,6 +1,10 @@
 import type { GitHubEvent } from "../types";
 import { escapeHtml } from "../telegram";
 
+function headerLine(label: string, value: string): string {
+  return `<code><b>${label}</b></code>${value}`;
+}
+
 export function formatDiscussion(event: GitHubEvent): string {
   const repo = event.repository?.full_name ?? "unknown";
   const repoUrl = event.repository?.html_url ?? "";
@@ -10,6 +14,7 @@ export function formatDiscussion(event: GitHubEvent): string {
   const number = discussion?.number;
   const url = (discussion?.html_url as string) ?? "";
   const sender = event.sender?.login ?? "unknown";
+  const senderUrl = event.sender?.html_url ?? "";
   const category = (discussion?.category as { name: string } | undefined)?.name ?? "";
 
   let actionText = action;
@@ -18,5 +23,13 @@ export function formatDiscussion(event: GitHubEvent): string {
   else if (action === "reopened") actionText = "reopened";
   else if (action === "answered") actionText = "marked as answered";
 
-  return `<b>[<a href="${repoUrl}">${escapeHtml(repo)}</a>]</b> Discussion <a href="${url}">#${number} ${escapeHtml(title)}</a> ${actionText} by <a href="${event.sender?.html_url ?? ""}">${escapeHtml(sender)}</a> [${escapeHtml(category)}]`;
+  const lines: string[] = [];
+  lines.push(headerLine("Event:    ", "💡 discussion"));
+  lines.push(headerLine("Repo:     ", `<a href="${repoUrl}">${escapeHtml(repo)}</a>`));
+  lines.push(headerLine("Title:    ", `<a href="${url}">#${number} ${escapeHtml(title)}</a>`));
+  lines.push(headerLine("Action:   ", actionText));
+  lines.push(headerLine("Category: ", escapeHtml(category)));
+  lines.push(headerLine("By:       ", `<a href="${senderUrl}">${escapeHtml(sender)}</a>`));
+
+  return lines.join("\n");
 }

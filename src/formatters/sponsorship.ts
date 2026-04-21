@@ -1,6 +1,10 @@
 import type { GitHubEvent } from "../types";
 import { escapeHtml } from "../telegram";
 
+function headerLine(label: string, value: string): string {
+  return `<code><b>${label}</b></code>${value}`;
+}
+
 export function formatSponsorship(event: GitHubEvent): string {
   const repo = event.repository?.full_name ?? "unknown";
   const repoUrl = event.repository?.html_url ?? "";
@@ -10,5 +14,11 @@ export function formatSponsorship(event: GitHubEvent): string {
   const sponsorLogin = sponsor?.login ?? event.sender?.login ?? "unknown";
   const sponsorUrl = sponsor?.html_url ?? event.sender?.html_url ?? "";
 
-  return `<b>[<a href="${repoUrl}">${escapeHtml(repo)}</a>]</b> 💖 Sponsorship ${action} by <a href="${sponsorUrl}">${escapeHtml(sponsorLogin)}</a>`;
+  const lines: string[] = [];
+  lines.push(headerLine("Event:    ", "💖 sponsorship"));
+  lines.push(headerLine("Repo:     ", `<a href="${repoUrl}">${escapeHtml(repo)}</a>`));
+  lines.push(headerLine("Action:   ", action));
+  lines.push(headerLine("By:       ", `<a href="${sponsorUrl}">${escapeHtml(sponsorLogin)}</a>`));
+
+  return lines.join("\n");
 }

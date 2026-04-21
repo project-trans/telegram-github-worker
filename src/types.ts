@@ -3,6 +3,7 @@ export interface Target {
   chat_id: string;
   events: string[];
   public: boolean;
+  silence_workflow?: boolean;
 }
 
 export interface RepoConfig {
