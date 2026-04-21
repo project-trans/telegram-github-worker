@@ -1,0 +1,8 @@
+name = "telegram-github-worker"
+main = "src/index.ts"
+compatibility_date = "2025-04-21"
+
+[[kv_namespaces]]
+binding = "TG_GH_KV"
+id = "PLACEHOLDER"
+preview_id = "PLACEHOLDER"
