@@ -15,7 +15,7 @@ export function formatIssueComment(event: GitHubEvent): string {
   const body = (comment?.body as string) ?? "";
 
   const lines: string[] = [];
-  const isPR = issueUrl.includes("/pull/");
+  const isPR = issue?.pull_request !== undefined;
   const typeLabel = isPR ? "PR" : "Issue";
 
   lines.push(`<b>[<a href="${repoUrl}">${escapeHtml(repo)}</a>]</b> ${action} comment on ${typeLabel} <a href="${issueUrl}">#${issueNumber} ${escapeHtml(issueTitle)}</a> by <a href="${event.sender?.html_url ?? ""}">${escapeHtml(sender)}</a>`);

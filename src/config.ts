@@ -29,6 +29,15 @@ export async function getRepoConfig(
   return null;
 }
 
+export async function getOrgWildcardConfig(
+  kv: KVNamespace,
+  orgName: string,
+): Promise<RepoConfig | null> {
+  const raw = await kv.get(wildcardKey(orgName));
+  if (!raw) return null;
+  return JSON.parse(raw) as RepoConfig;
+}
+
 export async function getAdminConfig(
   kv: KVNamespace,
 ): Promise<AdminConfig | null> {

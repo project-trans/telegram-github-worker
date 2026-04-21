@@ -6,7 +6,7 @@ export function formatPush(event: GitHubEvent): string {
   const repoUrl = event.repository?.html_url ?? "";
   const ref = (event.ref as string) ?? "";
   const branch = ref.replace("refs/heads/", "");
-  const commits = (event.commits as Array<{ message: string; url: string; author: { name: string } }>) ?? [];
+  const commits = (event.commits as Array<{ id: string; message: string; url: string; author: { name: string } }>) ?? [];
   const sender = event.sender?.login ?? "unknown";
   const compare = (event.compare as string) ?? "";
 
@@ -17,7 +17,7 @@ export function formatPush(event: GitHubEvent): string {
   const maxCommits = 5;
   for (let i = 0; i < Math.min(commits.length, maxCommits); i++) {
     const msg = commits[i].message.split("\n")[0];
-    lines.push(`  <a href="${commits[i].url}"><code>${escapeHtml(commits[i].message.substring(0, 7))}</code></a> ${escapeHtml(msg)} - ${escapeHtml(commits[i].author.name)}`);
+    lines.push(`  <a href="${commits[i].url}"><code>${escapeHtml(commits[i].id.substring(0, 7))}</code></a> ${escapeHtml(msg)} - ${escapeHtml(commits[i].author.name)}`);
   }
 
   if (commits.length > maxCommits) {
