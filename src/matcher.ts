@@ -38,7 +38,8 @@ export function matchTargets(
   const results: MatchedTarget[] = [];
 
   for (const target of config.targets) {
-    if (!target.events.includes(eventType)) continue;
+    const matches = target.events.includes("*") || target.events.includes(eventType);
+    if (!matches) continue;
 
     if (target.public) {
       if (isPrivate) continue;
