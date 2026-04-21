@@ -1,0 +1,11 @@
+"owner/repo":
+  secret: "webhook-secret-123"
+  targets:
+    - bot_token: "123:abc"
+      chat_id: "-100xxx"
+      events: [push, release]
+      public: false
+
+"__admin__":
+  bot_token: "admin:token"
+  chat_id: "123456789"
