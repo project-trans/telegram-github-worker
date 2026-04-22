@@ -2,6 +2,9 @@ name = "telegram-github-worker"
 main = "src/index.ts"
 compatibility_date = "2025-04-21"
 
+[vars]
+DEBUG = ""
+
 [[kv_namespaces]]
 binding = "TG_GH_KV"
 id = "KV_ID_PLACEHOLDER"

@@ -27,13 +27,13 @@ export function formatIssues(event: GitHubEvent): string {
   const lines: string[] = [];
   lines.push(headerLine("Event:    ", `${emoji} issue`));
   lines.push(headerLine("Repo:     ", `<a href="${repoUrl}">${escapeHtml(repo)}</a>`));
+  lines.push(headerLine("Number:   ", `#${number}`));
+  lines.push(headerLine("Title:    ", `<a href="${url}">${escapeHtml(title)}</a>`));
   lines.push(headerLine("Action:   ", actionText));
   lines.push(headerLine("By:       ", `<a href="${senderUrl}">${escapeHtml(sender)}</a>`));
   if (labels.length > 0) {
     lines.push(headerLine("Labels:   ", labels.map((l) => escapeHtml(l.name)).join(", ")));
   }
-  lines.push("");
-  lines.push(`<a href="${url}">#${number} ${escapeHtml(title)}</a>`);
 
   return lines.join("\n");
 }

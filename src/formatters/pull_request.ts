@@ -33,12 +33,19 @@ export function formatPullRequest(event: GitHubEvent): string {
   else if (action === "reopened") actionText = "reopened";
   else if (action === "ready_for_review") actionText = "ready for review";
   else if (action === "converted_to_draft") actionText = "converted to draft";
+  else if (action === "review_requested") actionText = "review requested";
   else if (action === "synchronize") actionText = "synchronized";
   else actionText = action;
+
+  const requestedReviewers = action === "review_requested"
+    ? (event.requested_reviewer as { login: string } | undefined) ?? (pr?.requested_reviewers as Array<{ login: string }> | undefined)
+    : undefined;
 
   const lines: string[] = [];
   lines.push(headerLine("Event:    ", `${emoji} pull_request`));
   lines.push(headerLine("Repo:     ", `<a href="${repoUrl}">${escapeHtml(repo)}</a>`));
+  lines.push(headerLine("Number:   ", `#${number}`));
+  lines.push(headerLine("Title:    ", `<a href="${url}">${escapeHtml(title)}</a>`));
   lines.push(headerLine("Action:   ", actionText));
   lines.push(headerLine("By:       ", `<a href="${senderUrl}">${escapeHtml(sender)}</a>`));
   if (headLabel && baseLabel) {
@@ -53,13 +60,24 @@ export function formatPullRequest(event: GitHubEvent): string {
   if (labels.length > 0) {
     lines.push(headerLine("Labels:   ", labels.map((l) => escapeHtml(l.name)).join(", ")));
   }
-  lines.push("");
-  lines.push(`<a href="${url}">#${number} ${escapeHtml(title)}</a>`);
+  if (action === "review_requested" && requestedReviewers) {
+    const reviewers = Array.isArray(requestedReviewers)
+      ? requestedReviewers.map((r) => escapeHtml(r.login)).join(", ")
+      : escapeHtml(requestedReviewers.login);
+    lines.push(headerLine("Reviewer: ", reviewers));
+  }
+  const body = (pr?.body as string) ?? "";
+  if (body) {
+    lines.push("");
+    const truncated = body.length > 300 ? body.substring(0, 300) + "..." : body;
+    lines.push(escapeHtml(truncated));
+  }
   if (action === "synchronize") {
     const before = (event.before as string) ?? "";
     const after = (event.after as string) ?? "";
     if (before && after) {
       const compareUrl = `${repoUrl}/compare/${before.substring(0, 7)}...${after.substring(0, 7)}`;
+      lines.push("");
       lines.push(`<a href="${compareUrl}">Compare changes</a>`);
     }
   }

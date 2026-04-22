@@ -16,12 +16,14 @@ export async function getRepoConfig(
 ): Promise<RepoConfig | null> {
   const [owner] = fullName.split("/");
 
-  const exact = await kv.get(configKey(fullName));
+  const exactKey = configKey(fullName);
+  const exact = await kv.get(exactKey);
   if (exact) {
     return JSON.parse(exact) as RepoConfig;
   }
 
-  const wildcard = await kv.get(wildcardKey(owner));
+  const wildKey = wildcardKey(owner);
+  const wildcard = await kv.get(wildKey);
   if (wildcard) {
     return JSON.parse(wildcard) as RepoConfig;
   }
@@ -33,7 +35,8 @@ export async function getOrgWildcardConfig(
   kv: KVNamespace,
   orgName: string,
 ): Promise<RepoConfig | null> {
-  const raw = await kv.get(wildcardKey(orgName));
+  const key = wildcardKey(orgName);
+  const raw = await kv.get(key);
   if (!raw) return null;
   return JSON.parse(raw) as RepoConfig;
 }
